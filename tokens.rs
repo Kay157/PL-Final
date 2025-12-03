@@ -155,3 +155,21 @@ impl PartialEq for TCode {
 }
 
 impl Eq for TCode {}
+
+#[derive(Debug, Clone)]
+pub enum TreeCode {
+    PROGRAM,
+    FUNCTION,
+    PARAM_LIST,
+    PARAMETER,
+    IDENTIFIER(String),
+    BLOCK,
+    EXPRESSION,
+    STATEMENT,
+    RETURN,
+    WHILE,
+    IF,
+    LET,
+    PRINT,
+    EOF,
+}

@@ -2,6 +2,7 @@ mod tokens;
 mod lexer;
 mod parser;
 mod descent_parser;
+mod mtree;
 
 fn main() {
     let src = r#"
@@ -83,8 +84,11 @@ fn main() {
         let lexer = lexer::Lexer::new(src);
         let mut parser = parser::Parser::new(lexer);
 
-        parser.parse();
+        let ast = parser.parse();
 
-        println!("Parser finished OK.\n");
+        println!("--- AST (MTree) ---");
+        ast.borrow().print();
+
+        println!("--- DONE ---\n");
     }
 }

@@ -1,6 +1,8 @@
 use crate::lexer::Lexer;
-use crate::tokens::TCode;
-use crate::tokens::Token;
+use crate::tokens::{TCode, Token, TreeCode};
+use crate::mtree::MTree;
+
+const INDENT : usize = 2;
 
 pub struct Parser {
     lexer: Lexer,
@@ -47,6 +49,7 @@ impl Parser {
     }
 
     pub fn expect_id(&mut self) -> String {
+
         match self.curr() {
             TCode::ID(name) => {
                 let out = name.clone();
@@ -66,4 +69,14 @@ impl Parser {
         }
     }
 
+    pub(crate) fn indent_print(&mut self, msg: &'static str) {
+        println!("{:<indent$}{:}", "", msg, indent=self.indent);
+    }
+
+    pub(crate) fn indent_increment(&mut self) {
+        self.indent += INDENT;
+    }
+    pub(crate) fn indent_decrement(&mut self) {
+        self.indent -= INDENT;
+    }
 }
