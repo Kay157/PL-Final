@@ -71,6 +71,8 @@ impl Parser {
             TCode::KW_PRINT => self.parse_print_statement(),
             TCode::KW_WHILE => self.parse_while_statement(),
             TCode::BRACKET_L => self.parse_block_nest(),
+            TCode::ID(s) => self.parse_expression(),
+            TCode::SEMICOLON => self.advance(),
             other => panic!("Unexpected statement token, found {:?}", other),
         }
     }
@@ -78,31 +80,16 @@ impl Parser {
     // parse_return_statement: "return" (ID | Literal) ";"
     pub fn parse_return_statement(&mut self) {
         self.expect(TCode::KW_RETURN);
-
-        match self.curr() {
-            TCode::ID(name) => {
-                self.advance();
-            }
-            TCode::INT(s) => {
-                self.advance();
-            }
-            TCode::BOOL(s) => {
-                self.advance();
-            }
-            other => panic!("Expected return statement, found {:?}", other),
-        }
-
-        self.expect(TCode::SEMICOLON);
+        self.parse_expression();
     }
 
     // parse_let_statement: "let" ID ":" TypeOrIdent "=" Expression ";"
     pub fn parse_let_statement(&mut self) {
         self.expect(TCode::KW_LET);
         self.expect_id();
-        self.expect(TCode::OP_ASSIGN);
-        self.parse_expression();
-        self.expect(TCode::SEMICOLON);
-
+        if self.curr() == &TCode::OP_ASSIGN {
+            self.parse_expression();
+        }
     }
 
     // parse_if_statement: "if" Expression BlockNest [ "else" BlockNest ]
@@ -119,28 +106,79 @@ impl Parser {
     pub fn parse_print_statement(&mut self) {
         self.expect(TCode::KW_PRINT);
         self.parse_expression();
-        self.expect(TCode::SEMICOLON);
     }
 
     // parse_while_statement: "while" Expression BlockNest
     pub fn parse_while_statement(&mut self) {
         self.expect(TCode::KW_WHILE);
-        self.parse_block_nest();
+        self.parse_expression();
     }
 
     // parse_expression: ID | Literal | "true" | "false"
     pub fn parse_expression(&mut self) {
+        while self.curr() != &TCode::BRACKET_L && self.curr() != &TCode::SEMICOLON && self.curr() != &TCode::EOI{
+            match self.curr() {
+                TCode::ID(name) => {
+                    self.advance();
+                }
+                TCode::INT(s) => {
+                    self.advance();
+                }
+                TCode::BOOL(s) => {
+                    self.advance();
+                }
+                TCode::OP_ADD => {
+                    self.advance();
+                }
+                TCode::OP_SUB => {
+                    self.advance();
+                }
+                TCode::OP_MUL => {
+                    self.advance();
+                }
+                TCode::OP_DIV => {
+                    self.advance();
+                }
+                TCode::OP_LT => {
+                    self.advance();
+                }
+                TCode::OP_GT => {
+                    self.advance();
+                }
+                TCode::OP_EQUAL => {
+                    self.advance();
+                }
+                TCode::OP_NOT_EQUAL => {
+                    self.advance();
+                }
+                TCode::OP_AND => {
+                    self.advance();
+                }
+                TCode::OP_OR => {
+                    self.advance();
+                }
+                TCode::OP_NOT => {
+                    self.advance();
+                }
+                TCode::OP_ASSIGN => {
+                    self.advance();
+                }
+                TCode::PAREN_L => {
+                    self.advance();
+                    while self.curr() != &TCode::PAREN_R {
+                        self.advance();
+                    }
+                }
+                TCode::PAREN_R => {
+                    self.advance();
+                }
+                other => panic!("Expected expression, found {:?}", other),
+            }
+        }
         match self.curr() {
-            TCode::ID(name) => {
-                self.advance();
-            }
-            TCode::INT(s) => {
-                self.advance();
-            }
-            TCode::BOOL(s) => {
-                self.advance();
-            }
-            other => panic!("Expected expression, found {:?}", other),
+            TCode::BRACKET_R => self.expect(TCode::BRACKET_R),
+            TCode::SEMICOLON => self.expect(TCode::SEMICOLON),
+            _ => return,
         }
     }
 }
