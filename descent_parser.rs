@@ -216,19 +216,18 @@ impl Parser {
         self.indent_decrement();
     }
 
+
     // while_stmt = "while" expression block ;
     pub fn parse_while_statement(&mut self, ast_node: &Rc<RefCell<MTree>>) {
-        self.indent_print("parse_while_statement()");
-        self.indent_increment();
-
         let while_node = MTree::new(TreeCode::WHILE);
-
         self.expect(TCode::KW_WHILE);
         let expr_node = self.parse_expression();
-        while_node.borrow_mut()._push(expr_node.clone());
+        while_node.borrow_mut()._push(expr_node);
 
-        ast_node.borrow_mut()._push(while_node.clone());
-        self.indent_decrement();
+
+        self.parse_block_nest(&while_node);
+
+        ast_node.borrow_mut()._push(while_node);
     }
 
     // assign_stmt = ID "=" expression ";" ;
