@@ -52,7 +52,7 @@ impl Parser {
         let curr_token = self.curr();
 
         if curr_token == &symbol {
-            println!("{:<indent$}expect({:?})", "", symbol, indent = self.indent);
+            //println!("{:<indent$}expect({:?})", "", symbol, indent = self.indent);
             self.advance();
         } else {
             panic!(

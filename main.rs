@@ -7,16 +7,95 @@ mod mtree;
 mod analyzer;
 mod evaluator;
 
+use std::env;
+use std::fs;
+
 fn main() {
-    let src = r#"
-        let n;
-        n = 5;
-        print n;
-        func factorial(x) [ if x < 2 [ return 1; ] else [ return x * factorial(x - 1); ] ]
-    "#;
+    // user input should look like:
+    // cargo run [command] [file]
 
-    let mut lex = lexer::Lexer::new(src);
 
+    // Access terminal input from user
+    let args: Vec<String> = env::args().collect();
+    let terminal_input = args.clone();
+
+    // Check user input
+    let function = match args.get(1) {
+        Some(arg) => arg,
+        None => {
+            println!("No command provided. Use 'help' to see available commands.");
+            return;
+        }
+    };
+
+    // Call the corresponding function for the inputted command
+    match function.as_str() {
+        "help" => help(terminal_input),
+        "list" => list_commands(),
+        "tokenize" => configure_lexer(terminal_input),
+        "parse" => parse_file(terminal_input),
+        "execute" => execute(terminal_input),
+        _ => println!("Unknown command: {function}")
+    }
+}
+
+// The help command displays a help message to clarify each command
+fn help(args: Vec<String>) {
+    // A specific command specified
+    if let Some(command) = args.get(2) {
+        match command.as_str() {
+            "[help]" => {
+                println!("help,                         Display the help message for all commands.");
+                println!("help [command]                Display the help message for the specified command.");
+            }
+            "[list]" => {
+                println!("list                         Display the list of commands.");
+            }
+            "[tokenize]" => {
+                println!("tokenize                      Perform lexical analysis on a given file.");
+            }
+            "[parse]" => {
+                println!("parse                         Parse a given input file and print the resulting parse tree.");
+            }
+            "[execute]" => {
+                println!("execute                       Execute a given input file and print the tree and the result of the program.");
+            }
+            _ => println!("Unknown command: {command}"),
+        }
+    }
+    // No specific command specified
+    else {
+        println!("help                Display the help message for all commands.");
+        println!("help [command]      Display the help message for the specified command.");
+        println!("list                Display the list of supported commands.");
+        println!("tokenize            Display the lexical analysis on a given file.");
+        println!("parse               Display the parsed tree given an input file.");
+        println!("execute             Display the executed code and the parsed tree of a given input file.");
+    }
+}
+
+// The list command prints the list of available commands
+fn list_commands() {
+    println!("Available Commands: ");
+    println!("help, ");
+    println!("list, ");
+    println!("tokenize, ");
+    println!("parse, ");
+    println!("execute ");
+}
+
+// The configure lexer method is called for the tokenize command to create a new lexer from the file input for analysis
+fn configure_lexer(args: Vec<String>) {
+    let file_path = match args.get(2) {
+        Some(path) => path,
+        None => {
+            println!("No file specified.");
+            return;
+        }
+    };
+
+    let contents = fs::read_to_string(file_path).expect("Something went wrong reading the file");
+    let mut lex = lexer::Lexer::new(&*contents);
     loop {
         let tok = lex.next_token();
         println!("{:?}", tok.code);
@@ -24,136 +103,43 @@ fn main() {
             break;
         }
     }
+}
 
-    let tests = vec![
-        (
-            "Test 1: Minimal function",
-            r#"
-            func main() [
-                print 1;
-            ]
-            "#
-        ),
-        /*
-        (
-            "Test 2: Simple factorial",
-            r#"
-            func factorial(x) [
-                if x < 2 [
-                    return 1;
-                ]
-                else [
-                    return x;
-                ]
-            ]
-            "#
-        ),
+fn parse_file(args: Vec<String>) {
+    let file_path = match args.get(2) {
+        Some(path) => path,
+        None => {
+            println!("No file specified.");
+            return;
+        }
+    };
 
-        (
-            "Test 3: Recursive factorial",
-            r#"
-            func factorial(x) [
-                if x < 2 [
-                    return 1;
-                ]
-                else [
-                    return x * factorial(x - 1);
-                ]
-            ]
-            "#
-        ),
+    let contents = fs::read_to_string(file_path).expect("Something went wrong reading the file");
+    let lexer = lexer::Lexer::new(&*contents);
+    let mut parser = parser::Parser::new(lexer);
+    let ast = parser.parse();
+    println!("--- AST (MTree) ---");
+    ast.borrow().print();
+}
 
-        (
-            "Test 4: Multiple functions",
-            r#"
-            func a() [
-                let x;
-                x = 10;
+pub fn execute(args: Vec<String>) {
+    let file_path = match args.get(2) {
+        Some(path) => path,
+        None => {
+            println!("No file specified.");
+            return;
+        }
+    };
+    let contents = fs::read_to_string(file_path).expect("Something went wrong reading the file");
+    let lexer = lexer::Lexer::new(&*contents);
+    let mut parser = parser::Parser::new(lexer);
+    let ast = parser.parse();
+    println!("--- ANALYZING ---");
+    analyzer::analyze(ast.clone());
 
-                print x;
-            ]
+    println!("--- RUNNING PROGRAM ---");
+    let mut runtime = evaluator::Runtime::new();
+    runtime.run_program(ast.clone());
 
-            func b(y) [
-                while y > 0 [
-                    print y;
-                    y = y - 1;
-                ]
-            ]
-            "#
-        ),
-
-        (
-            "Test 5: Undeclared variable",
-            r#"
-                func test(y) [
-                    print x;
-                    let x;
-                    x = 5;
-                    print y;
-                ]
-            "#
-        ),
-        */
-        (
-            "Test 6: Final test",
-            r#"
-            func factorial_recursion(n) [
-                if n < 2 [
-                    return 1;
-                ]
-                else [
-                    return n * factorial_recursion(n - 1);
-                ]
-            ]
-
-            func factorial_loop(n) [
-                let p;
-                p = n;
-
-                while n > 0 [
-                    n = n - 1;
-                    p = p * n;
-                ]
-                return p;
-            ]
-
-            func main() [
-                let n;
-                n = 5;
-                print factorial_loop(n);
-                print factorial_recursion(n);
-            ]
-            "#
-            ),
-    ];
-
-    for (label, src) in tests {
-        println!("===============================");
-        println!("{}", label);
-        println!("Source:\n{}\n", src);
-
-        let lexer = lexer::Lexer::new(src);
-        let mut parser = parser::Parser::new(lexer);
-
-        let ast = parser.parse();
-
-        println!("--- AST (MTree) ---");
-        ast.borrow().print();
-
-        // --- NEW: Run analyzer ---
-        println!("--- ANALYZING ---");
-        analyzer::analyze(ast.clone());
-
-        println!("--- RUNNING PROGRAM ---");
-        let mut runtime = evaluator::Runtime::new();
-        runtime.run_program(ast.clone());
-
-        println!("--- DONE ---\n");
-    }
-
-    // The program will throw an error if a variable is not declared
-    // and if there is not a main function for it to run.
-    // If it throws an error the rest of the tests won't run, so I
-    // commented them out!
-    // Test 6 is the example from the top of the final project assignment sheet.
+    println!("--- DONE ---\n");
 }

@@ -28,7 +28,7 @@ impl Parser {
     // Function Definitions
     // function = "func" ID "(" [ parameters ] ")" block ;
     pub fn parse_func(&mut self, ast_node: &Rc<RefCell<MTree>>) {
-        self.indent_print("parse_func()");
+        //self.indent_print("parse_func()");
         self.indent_increment();
 
         self.expect(TCode::KW_FUNC);
@@ -51,7 +51,7 @@ impl Parser {
 
     // parameters = ID { "," ID } ;
     pub fn parse_parameter_list(&mut self, ast_node: &Rc<RefCell<MTree>>) {
-        self.indent_print("parse_parameter_list()");
+        //self.indent_print("parse_parameter_list()");
         self.indent_increment();
 
         let param_list_node = MTree::new(TreeCode::PARAM_LIST);
@@ -68,7 +68,7 @@ impl Parser {
     }
 
     pub fn parse_parameter(&mut self, ast_node: &Rc<RefCell<MTree>>) {
-        self.indent_print("parse_parameter()");
+        //self.indent_print("parse_parameter()");
         self.indent_increment();
 
         let param_node = MTree::new(TreeCode::PARAMETER);
@@ -90,7 +90,7 @@ impl Parser {
     // Blocks
     // block = "[" { statement } "]" ;
     pub fn parse_block_nest(&mut self, ast_node: &Rc<RefCell<MTree>>) {
-        self.indent_print("parse_block_nest()");
+        //self.indent_print("parse_block_nest()");
         self.indent_increment();
 
         let block_node = MTree::new(TreeCode::BLOCK);
@@ -114,7 +114,7 @@ impl Parser {
     // | expr_stmt
     // ;
     pub fn parse_statement(&mut self, ast_node: &Rc<RefCell<MTree>>) {
-        self.indent_print("parse_statement()");
+        //self.indent_print("parse_statement()");
         self.indent_increment();
 
         let statement_node = MTree::new(TreeCode::STATEMENT);
@@ -127,7 +127,7 @@ impl Parser {
             TCode::KW_PRINT => self.parse_print_statement(&statement_node),
             TCode::KW_WHILE => self.parse_while_statement(&statement_node),
             TCode::BRACKET_L => self.parse_block_nest(&statement_node),
-            TCode::ID(s) => {
+            TCode::ID(_s) => {
                 if self.peek_next().code == TCode::OP_ASSIGN {
                         self.parse_assign_statement(&statement_node);
                 } else {
@@ -144,7 +144,7 @@ impl Parser {
 
     // return_stmt = "return" expression ";" ;
     pub fn parse_return_statement(&mut self, ast_node: &Rc<RefCell<MTree>>) {
-        self.indent_print("parse_return_statement");
+        //self.indent_print("parse_return_statement");
         self.indent_increment();
 
         let return_node = MTree::new(TreeCode::RETURN);
@@ -161,7 +161,7 @@ impl Parser {
 
     // let_stmt = "let" ID ";" ;
     pub fn parse_let_statement(&mut self, ast_node: &Rc<RefCell<MTree>>) {
-        self.indent_print("parse_let_statement()");
+        //self.indent_print("parse_let_statement()");
         self.indent_increment();
 
         let let_node = MTree::new(TreeCode::LET);
@@ -182,7 +182,7 @@ impl Parser {
 
     // if_stmt = "if" expression block "else" block ;
     pub fn parse_if_statement(&mut self, ast_node: &Rc<RefCell<MTree>>) {
-        self.indent_print("parse_if_statement()");
+        //self.indent_print("parse_if_statement()");
         self.indent_increment();
 
         let if_node = MTree::new(TreeCode::IF);
@@ -202,7 +202,7 @@ impl Parser {
 
     // print_stmt = "print" expression ";" ;
     pub fn parse_print_statement(&mut self, ast_node: &Rc<RefCell<MTree>>) {
-        self.indent_print("parse_print_statement()");
+        //self.indent_print("parse_print_statement()");
         self.indent_increment();
 
         let print_node = MTree::new(TreeCode::PRINT);
@@ -232,7 +232,7 @@ impl Parser {
 
     // assign_stmt = ID "=" expression ";" ;
     pub fn parse_assign_statement(&mut self, ast_node: &Rc<RefCell<MTree>>) {
-        self.indent_print("parse_assign_statement()");
+        //self.indent_print("parse_assign_statement()");
         self.indent_increment();
 
         let assign_node = MTree::new(TreeCode::ASSIGN);
