@@ -162,14 +162,22 @@ pub enum TreeCode {
     FUNCTION,
     PARAM_LIST,
     PARAMETER,
-    IDENTIFIER(String),
     BLOCK,
     EXPRESSION,
     STATEMENT,
+
     RETURN,
     WHILE,
     IF,
     LET,
     PRINT,
+    ASSIGN,
+
+    INT_LITERAL(i64),
+    BOOL_LITERAL(bool),
+    FUNCTION_CALL(String),
+    OPERATOR(String),
+    IDENTIFIER(String),
+
     EOF,
 }

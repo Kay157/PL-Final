@@ -23,7 +23,7 @@ impl MTree {
     pub fn node_string(&self) -> String {
         format!("{:?}", self.token)
     }
-
+    
     fn print_recursively(&self, level : usize) {
         let shift = 2*level;
         print!("{:1$}", "", shift);

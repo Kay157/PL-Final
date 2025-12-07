@@ -1,6 +1,5 @@
 use crate::lexer::Lexer;
-use crate::tokens::{TCode, Token, TreeCode};
-use crate::mtree::MTree;
+use crate::tokens::{TCode, Token};
 
 const INDENT : usize = 2;
 
@@ -14,7 +13,7 @@ impl Parser {
 
     pub fn new(mut lexer: Lexer) -> Self {
         let first = lexer.next_token();
-        let mut parser = Self {
+        let parser = Self {
             lexer,
             current_token : first,
             indent: 0,
@@ -31,8 +30,23 @@ impl Parser {
     }
 
     pub fn peek(&mut self, symbol: &TCode) -> bool {
-        self.curr() == &symbol.clone()
+        self.curr() == symbol
     }
+
+    pub fn peek_next(&mut self) -> Token {
+        let saved_pos = self.lexer.pos;
+        let saved_row = self.lexer.row;
+        let saved_col = self.lexer.col;
+
+        let next_token = self.lexer.next_token();
+
+        self.lexer.pos = saved_pos;
+        self.lexer.row = saved_row;
+        self.lexer.col = saved_col;
+
+        next_token
+    }
+
 
     pub fn expect(&mut self, symbol: TCode) {
         let curr_token = self.curr();

@@ -2,9 +2,9 @@ use crate::tokens::{TCode, Token, TLoc, TPos};
 
 pub struct Lexer {
     src: Vec<char>,
-    pos: usize,
-    row: usize,
-    col: usize,
+    pub(crate) pos: usize,
+    pub(crate) row: usize,
+    pub(crate) col: usize,
 }
 
 impl Lexer {
