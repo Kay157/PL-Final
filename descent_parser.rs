@@ -32,9 +32,13 @@ impl Parser {
         self.indent_increment();
 
         self.expect(TCode::KW_FUNC);
+
         let func_node = MTree::new(TreeCode::FUNCTION);
         ast_node.borrow_mut()._push(func_node.clone());
-        self.expect_id();
+
+        let name = self.expect_id();
+        let id_node = MTree::new(TreeCode::IDENTIFIER(name));
+        func_node.borrow_mut()._push(id_node);
 
         self.expect(TCode::PAREN_L);
         self.parse_parameter_list(&func_node);
@@ -44,7 +48,6 @@ impl Parser {
 
         self.indent_decrement();
     }
-
 
     // parameters = ID { "," ID } ;
     pub fn parse_parameter_list(&mut self, ast_node: &Rc<RefCell<MTree>>) {
@@ -64,17 +67,25 @@ impl Parser {
         self.indent_decrement();
     }
 
-    // parameter = ID
     pub fn parse_parameter(&mut self, ast_node: &Rc<RefCell<MTree>>) {
         self.indent_print("parse_parameter()");
         self.indent_increment();
 
         let param_node = MTree::new(TreeCode::PARAMETER);
-        ast_node.borrow_mut()._push(param_node.clone());
-        self.expect_id();
+
+        // get the actual name!!
+        let name = self.expect_id();
+        let id_node = MTree::new(TreeCode::IDENTIFIER(name));
+
+        // attach identifier under parameter node
+        param_node.borrow_mut()._push(id_node);
+
+        // attach parameter to list
+        ast_node.borrow_mut()._push(param_node);
 
         self.indent_decrement();
     }
+
 
     // Blocks
     // block = "[" { statement } "]" ;

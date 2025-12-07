@@ -3,6 +3,7 @@ mod lexer;
 mod parser;
 mod descent_parser;
 mod mtree;
+mod analyzer;
 
 fn main() {
     let src = r#"
@@ -63,6 +64,7 @@ fn main() {
             func a() [
                 let x;
                 x = 10;
+
                 print x;
             ]
 
@@ -72,6 +74,17 @@ fn main() {
                     y = y - 1;
                 ]
             ]
+            "#
+        ),
+        (
+            "Test 5: Undeclared variable",
+            r#"
+                func test(y) [
+                    print x;
+                    let x;
+                    x = 5;
+                    print y;
+                ]
             "#
         ),
     ];
@@ -88,6 +101,10 @@ fn main() {
 
         println!("--- AST (MTree) ---");
         ast.borrow().print();
+
+        // --- NEW: Run analyzer ---
+        println!("--- ANALYZING ---");
+        analyzer::analyze(ast.clone());
 
         println!("--- DONE ---\n");
     }
