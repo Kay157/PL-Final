@@ -1,0 +1,11 @@
+func inc(n) [
+    return n + 1;
+]
+
+func main() [
+    let x;
+    x = inc(4);
+    print x;
+    return x;
+]
+
